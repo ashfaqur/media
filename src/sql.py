@@ -2,20 +2,22 @@ import sqlite3
 import logging
 from sqlite3 import Connection
 
+from data_types import db_media_type
 
-def connect_to_db(file_path) -> Connection:
+
+def connect_to_db(file_path: str) -> Connection:
     conn = sqlite3.connect(file_path)
     logging.debug(f"Connected to database {file_path}")
     return conn
 
 
-def close_connection(conn: Connection):
+def close_connection(conn: Connection) -> None:
     if conn:
         conn.close()
         logging.debug("Database connection closed.")
 
 
-def create_table(conn: Connection):
+def create_table(conn: Connection) -> None:
     cursor = conn.cursor()
     cursor.execute(
         """
@@ -35,15 +37,12 @@ def create_table(conn: Connection):
     cursor.close()
 
 
-def insert_media_data(database_path: str, data: list[tuple[str, str, str, str, str]]):
+def insert_media_data(database_path: str, data: db_media_type) -> None:
     """
+    Inserts media data into the database.
     Args:
-        database_path (str): Path to the SQLite database file.
-        data (list[tuple[str, str, str, str, str]]): List of tuples containing media data.
-            Each tuple should contain (file_path, type, date, sequence, source).
-    Note:
-        The function creates the media table if it does not exist and uses
-        'INSERT OR REPLACE' to avoid duplicate entries based on the primary key.
+        database_path (str): The path to the SQLite database file.
+        data (db_media_type): A list of tuples containing the media data.
     """
     try:
         logging.debug(f"Initializing database at: {database_path}")
@@ -62,3 +61,14 @@ def insert_media_data(database_path: str, data: list[tuple[str, str, str, str, s
         close_connection(conn)
     except Exception as e:
         print(f"Failed to initialize database table: {e}")
+
+
+def is_database_empty(database_path: str) -> bool:
+    conn = connect_to_db(database_path)
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM media")
+    result = cursor.fetchone()
+    count: int = result[0] if result else 0
+    cursor.close()
+    close_connection(conn)
+    return count == 0

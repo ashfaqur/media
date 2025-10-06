@@ -1,5 +1,6 @@
 import os
 import logging
+from sql import is_database_empty
 
 
 def check_database(db_path: str) -> None:
@@ -17,5 +18,9 @@ def check_database(db_path: str) -> None:
     # Check if the database file exists
     if os.path.isfile(db_path):
         logging.info(f"Using database file : {db_path}")
+        if is_database_empty(db_path):
+            logging.debug("Database is empty")
+        else:
+            logging.debug("Database is not empty")
     else:
         logging.info(f"New database file to be created: {db_path}")
