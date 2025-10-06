@@ -1,4 +1,4 @@
-from media.hello import say_hello
+from hello import say_hello
 
 
 def test_say_hello():
