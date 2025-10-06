@@ -1,2 +1,6 @@
-media_type = tuple[str, str, str, str, str]
-db_media_type = list[media_type]
+from typing import TypeAlias
+
+# date, file_path, type, sequence/order, origin
+MediaData: TypeAlias = tuple[str, str, str, str, str]
+
+FileNameData: TypeAlias = tuple[str, str, str]

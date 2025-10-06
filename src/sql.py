@@ -2,7 +2,7 @@ import sqlite3
 import logging
 from sqlite3 import Connection
 
-from data_types import db_media_type
+from data_types import MediaData
 
 
 def connect_to_db(file_path: str) -> Connection:
@@ -37,7 +37,7 @@ def create_table(conn: Connection) -> None:
     cursor.close()
 
 
-def insert_media_data(database_path: str, data: db_media_type) -> None:
+def insert_media_data(database_path: str, data: list[MediaData]) -> None:
     """
     Inserts media data into the database.
     Args:

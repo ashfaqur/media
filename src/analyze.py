@@ -1,6 +1,7 @@
 from argparse import Namespace
 
-from util import check_database
+
+from utility.db_util import check_database
 
 
 def analyze_command(args: Namespace) -> None:
