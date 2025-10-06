@@ -1,0 +1,64 @@
+import sqlite3
+import logging
+from sqlite3 import Connection
+
+
+def connect_to_db(file_path) -> Connection:
+    conn = sqlite3.connect(file_path)
+    logging.debug(f"Connected to database {file_path}")
+    return conn
+
+
+def close_connection(conn: Connection):
+    if conn:
+        conn.close()
+        logging.debug("Database connection closed.")
+
+
+def create_table(conn: Connection):
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+    CREATE TABLE IF NOT EXISTS media (
+        date TEXT,
+        file_path TEXT PRIMARY KEY,
+        type TEXT,
+        sequence TEXT,
+        origin TEXT,
+        UNIQUE(file_path, date),
+        FOREIGN KEY (date) REFERENCES journal(date)
+    )
+    """
+    )
+
+    conn.commit()
+    cursor.close()
+
+
+def insert_media_data(database_path: str, data: list[tuple[str, str, str, str, str]]):
+    """
+    Args:
+        database_path (str): Path to the SQLite database file.
+        data (list[tuple[str, str, str, str, str]]): List of tuples containing media data.
+            Each tuple should contain (file_path, type, date, sequence, source).
+    Note:
+        The function creates the media table if it does not exist and uses
+        'INSERT OR REPLACE' to avoid duplicate entries based on the primary key.
+    """
+    try:
+        logging.debug(f"Initializing database at: {database_path}")
+        conn = connect_to_db(database_path)
+        create_table(conn)
+        cursor = conn.cursor()
+        cursor.executemany(
+            """
+            INSERT OR REPLACE INTO media (date, file_path, type, sequence, origin)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            data,
+        )
+        conn.commit()
+        cursor.close()
+        close_connection(conn)
+    except Exception as e:
+        print(f"Failed to initialize database table: {e}")
