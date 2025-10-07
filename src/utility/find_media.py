@@ -1,4 +1,6 @@
 import logging
+import os
+from datetime import datetime
 from pathlib import Path
 from dataclasses import dataclass
 from typing import Generator
@@ -82,11 +84,20 @@ def find_media_files_iterator(
         media_type = EXTENSION_TO_TYPE.get(ext)
         if not media_type:
             continue
-
+        date, order, origin = "0", "0", "unknown"
         try:
             date, order, origin = extract_data_from_filename(file_path.name)
         except ValueError as e:
-            logging.warning(f"Skipping file '{file_path}': {e}")
+            logging.debug(f"Skipping file '{file_path}': {e}")
+            skipped_files += 1
+            continue
+        if not date:
+            date = get_file_mod_date(file_path)
+            logging.debug(
+                f"Date not found in filename {file_path}, using file mod date: {date}"
+            )
+        if not date:
+            logging.warning(f"Skipping file '{file_path}': date not found")
             skipped_files += 1
             continue
         size = file_path.stat().st_size
@@ -119,3 +130,8 @@ def find_media_files_iterator(
     logging.debug(
         f"Total size of media files: {total_size / 1024 / 1024 / 1024:.2f} GB"
     )
+
+
+def get_file_mod_date(filepath: Path) -> str:
+    ts = os.path.getmtime(filepath.absolute())
+    return datetime.fromtimestamp(ts).strftime("%Y-%m-%d")
