@@ -69,6 +69,11 @@ def find_media_files_iterator(
     folder = Path(folder_path)
     batch: list[MediaData] = []
 
+    video_counter = 0
+    picture_counter = 0
+    skipped_files = 0
+    total_size = 0
+
     for file_path in folder.rglob("*"):
         if not file_path.is_file():
             continue
@@ -82,6 +87,7 @@ def find_media_files_iterator(
             date, order, origin = extract_data_from_filename(file_path.name)
         except ValueError as e:
             logging.warning(f"Skipping file '{file_path}': {e}")
+            skipped_files += 1
             continue
         size = file_path.stat().st_size
         data = MediaMetaData(
@@ -92,7 +98,12 @@ def find_media_files_iterator(
             origin=origin,
             size=size,
         )
-        logging.info(f"Found media file: {data}")
+        if media_type == "video":
+            video_counter += 1
+        else:
+            picture_counter += 1
+        total_size += size
+        logging.debug(f"Found media file: {data}")
         batch.append(data.get_data())
 
         if len(batch) >= batch_size:
@@ -102,3 +113,9 @@ def find_media_files_iterator(
     # Yield any remaining files
     if batch:
         yield batch
+
+    logging.info(f"Found {video_counter} videos and {picture_counter} pictures")
+    logging.info(f"Skipped {skipped_files} files")
+    logging.debug(
+        f"Total size of media files: {total_size / 1024 / 1024 / 1024:.2f} GB"
+    )
