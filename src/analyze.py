@@ -1,7 +1,7 @@
 from argparse import Namespace
 
 
-from utility.db_util import check_database
+from utility.db_util import validate_database_path
 
 
 def analyze_command(args: Namespace) -> None:
@@ -11,4 +11,4 @@ def analyze_command(args: Namespace) -> None:
 
 
 def analyze(db_path: str) -> None:
-    check_database(db_path)
+    validate_database_path(db_path)
