@@ -4,7 +4,7 @@ import os
 from argparse import Namespace
 
 
-from utility.db_util import check_database
+from utility.db_util import validate_database_path
 from utility.find_media import find_media_files_iterator
 
 
@@ -14,7 +14,7 @@ def import_command(args: Namespace) -> None:
 
 
 def import_media(db_path: str, media_folders: list[str]) -> None:
-    check_database(db_path)
+    validate_database_path(db_path)
     picture_counter = 0
     video_counter = 0
     for folder in media_folders:

@@ -61,14 +61,3 @@ def insert_media_data(database_path: str, data: list[MediaData]) -> None:
         close_connection(conn)
     except Exception as e:
         print(f"Failed to initialize database table: {e}")
-
-
-def is_database_empty(database_path: str) -> bool:
-    conn = connect_to_db(database_path)
-    cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM media")
-    result = cursor.fetchone()
-    count: int = result[0] if result else 0
-    cursor.close()
-    close_connection(conn)
-    return count == 0
