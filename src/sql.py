@@ -27,8 +27,8 @@ def create_table(conn: Connection) -> None:
         type TEXT,
         sequence TEXT,
         origin TEXT,
-        UNIQUE(file_path, date),
-        FOREIGN KEY (date) REFERENCES journal(date)
+        size INTEGER,
+        UNIQUE(date, file_path)
     )
     """
     )
@@ -51,8 +51,8 @@ def insert_media_data(database_path: str, data: list[MediaData]) -> None:
         cursor = conn.cursor()
         cursor.executemany(
             """
-            INSERT OR REPLACE INTO media (date, file_path, type, sequence, origin)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT OR REPLACE INTO media (date, file_path, type, sequence, origin, size)
+            VALUES (?, ?, ?, ?, ?, ?)
             """,
             data,
         )
